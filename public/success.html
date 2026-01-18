@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank You - Raindrop Foundation Dallas</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <div class="donation-card" style="text-align: center;">
+        <img src="rndrp.png" alt="Raindrop Logo" style="width: 100px; margin-bottom: 10px;">
+        
+        <h1 style="color: #2c5282; margin-bottom: 10px;">Donation Confirmed!</h1>
+        <p>Thank you, <strong id="donor-name"></strong>, for your support.</p>
+        
+        <div class="summary-box" style="text-align: left; margin-top: 25px;">
+            <div class="summary-amount">Total Commitment: <span id="total-pledge"></span></div>
+            <div class="summary-detail" style="margin-bottom: 15px;">
+                Monthly Amount: <span id="monthly-amt"></span>
+            </div>
+            
+            <div class="renew-section">
+                <div id="renew-ui-container">
+                    <div class="no-print" style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                        <input type="checkbox" id="auto-renew-success" checked style="width: 18px; height: 18px; cursor: pointer;">
+                        <label id="renew-label" for="auto-renew-success" style="cursor: pointer; margin-bottom: 0;">
+                            <strong>Auto-Renew is Active</strong>
+                        </label>
+                    </div>
+                    
+                    <p id="renew-status-text" style="font-size: 14px; color: #4a5568;">
+                        Your contribution is set to continue after <span class="last-payment-date"></span>.
+                    </p>
+                    
+                    <button id="update-btn" class="no-print" onclick="updateRenewal()" style="background-color: #e53e3e; margin-top: 12px; padding: 10px; font-size: 14px;">
+                        Update Renewal Preference
+                    </button>
+                </div>
+                
+                <div id="status-msg" class="success-msg">
+                    <p style="margin-bottom: 5px;">Status: This subscription is now scheduled to end on <span class="last-payment-date"></span>.</p>
+                    <p>✅ <strong>Confirmed:</strong> Your subscription is now set to end on <span class="last-payment-date"></span>.</p>
+                </div>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+            
+            <label style="margin-bottom: 10px;">Official Installment Schedule:</label>
+            <ul id="schedule-list" style="list-style: none; font-size: 14px;"></ul>
+        </div>
+
+        <div class="no-print" style="margin-top: 30px; display: flex; flex-direction: column; gap: 15px;">
+            <button onclick="window.print()" class="print-btn">🖨️ Print Receipt & Schedule</button>
+            <a href="/" style="color: #3182ce; text-decoration: none; font-weight: 600; font-size: 14px;">Return to Homepage</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const sessionId = params.get('session_id');
+    const lastDateParam = params.get('lastDate'); // YYYY-MM-DD
+
+    // Format the last payment date (e.g., Aug 17, 2026)
+    let displayDate = "August 31, 2026"; // Fallback
+    if (lastDateParam) {
+        const [y, m, d] = lastDateParam.split('-').map(Number);
+        displayDate = new Date(y, m - 1, d).toLocaleDateString(undefined, { 
+            year: 'numeric', month: 'short', day: 'numeric' 
+        });
+    }
+
+    // Update all UI elements that show the end date
+    document.querySelectorAll('.last-payment-date').forEach(el => el.innerText = displayDate);
+
+    document.getElementById('donor-name').innerText = params.get('name') || 'Donor';
+    document.getElementById('total-pledge').innerText = `$${Number(params.get('total')).toLocaleString()}`;
+    document.getElementById('monthly-amt').innerText = `$${params.get('monthly')} / month`;
+
+    async function updateRenewal() {
+        const isChecked = document.getElementById('auto-renew-success').checked;
+        const btn = document.getElementById('update-btn');
+        const label = document.getElementById('renew-label');
+        
+        if (!isChecked) {
+            btn.innerText = "Processing...";
+            btn.disabled = true;
+            try {
+                const res = await fetch('/cancel-subscription', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ sessionId: sessionId })
+                });
+                if (res.ok) {
+                    label.innerHTML = "<strong>Auto-Renew is Cancelled</strong>";
+                    document.getElementById('auto-renew-success').disabled = true;
+                    btn.style.display = 'none';
+                    document.getElementById('renew-status-text').style.display = 'none';
+                    document.getElementById('status-msg').style.display = 'block';
+                }
+            } catch (err) {
+                alert("Error updating preference.");
+                btn.disabled = false;
+            }
+        }
+    }
+
+    // Build Schedule
+    const list = document.getElementById('schedule-list');
+    const startStr = params.get('start');
+    const count = parseInt(params.get('count')) || 1;
+    const monthly = params.get('monthly');
+
+    if (startStr) {
+        const [year, month, day] = startStr.split('-').map(Number);
+        let date = new Date(year, month - 1, day); 
+        for (let i = 0; i < count; i++) {
+            const li = document.createElement('li');
+            li.style.padding = "8px 0";
+            li.style.borderBottom = "1px solid #f7fafc";
+            const dateStr = date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+            li.innerHTML = `<div style="display: flex; justify-content: space-between;">
+                <span>Payment ${i + 1} (${dateStr})</span>
+                <strong>$${monthly}</strong>
+            </div>`;
+            list.appendChild(li);
+            date.setMonth(date.getMonth() + 1);
+        }
+    }
+</script>
+</body>
+</html>

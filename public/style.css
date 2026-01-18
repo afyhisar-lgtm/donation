@@ -1,0 +1,164 @@
+/* Global Reset & Typography */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    background-color: #f7fafc;
+    color: #2d3748;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 450px;
+}
+
+/* Card Styling */
+.donation-card {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Form Elements */
+.form-group {
+    margin-bottom: 18px;
+}
+
+label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    font-size: 14px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="number"],
+input[type="date"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 16px;
+    transition: border-color 0.2s;
+}
+
+input:focus {
+    outline: none;
+    border-color: #3182ce;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+}
+
+/* Checkbox & Terms */
+.checkbox-group {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.tos-row label {
+    font-weight: normal;
+    font-size: 13px;
+    line-height: 1.4;
+    cursor: pointer;
+}
+
+/* Summary Box */
+.summary-box {
+    background-color: #edf2f7;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border-left: 4px solid #3182ce;
+}
+
+.summary-amount {
+    font-weight: bold;
+    color: #2d3748;
+    font-size: 18px;
+}
+
+.summary-detail {
+    font-size: 14px;
+    color: #4a5568;
+    line-height: 1.6;
+    margin-top: 5px;
+}
+
+/* Buttons */
+button {
+    width: 100%;
+    padding: 14px;
+    background-color: #3182ce;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: #2b6cb0;
+}
+
+button:disabled {
+    background-color: #a0aec0;
+    cursor: not-allowed;
+}
+
+/* Success Page Specifics */
+.renew-section { 
+    background: #fff5f5; 
+    border: 1px solid #feb2b2; 
+    padding: 15px; 
+    border-radius: 8px; 
+    margin: 20px 0; 
+}
+
+.success-msg { 
+    color: #2f855a; 
+    background: #f0fff4; 
+    padding: 10px; 
+    border-radius: 5px; 
+    display: none; 
+    margin-top: 10px; 
+    border: 1px solid #c6f6d5;
+}
+
+.print-btn {
+    background: #4a5568;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.print-btn:hover {
+    background: #2d3748;
+}
+
+/* Print Logic */
+@media print {
+    .no-print, button, input[type="checkbox"], label[for="auto-renew-success"] {
+        display: none !important;
+    }
+    body { background: white; padding: 0; }
+    .container { max-width: 100%; }
+    .donation-card { box-shadow: none; border: 1px solid #eee; }
+    .renew-section { background: white; border: 1px solid #eee; }
+}

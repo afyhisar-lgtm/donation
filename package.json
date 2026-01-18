@@ -1,0 +1,14 @@
+{
+  "name": "donation-app",
+  "version": "1.0.0",
+  "description": "Stripe Yearly Commitment App",
+  "main": "process.js",
+  "scripts": {
+    "start": "node process.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "express": "^4.22.1",
+    "stripe": "^20.2.0"
+  }
+}

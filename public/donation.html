@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donate - Raindrop Foundation Dallas</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <div class="donation-card">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <img src="rndrp.png" alt="Raindrop Foundation Dallas" style="width: 120px;">
+        </div>
+
+        <h2 style="text-align: center; color: #1a365d; margin-bottom: 25px;">Monthly Donation</h2>
+
+        <form id="donation-form">
+            <div class="form-group">
+                <label for="donor-name">Full Name</label>
+                <input type="text" id="donor-name" placeholder="John Doe" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" placeholder="john@example.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" placeholder="(555) 555-5555" required>
+            </div>
+
+            <div class="form-group">
+                <label for="monthly-amount">Monthly Donation Amount ($)</label>
+                <input type="number" id="monthly-amount" placeholder="100" min="5" required>
+            </div>
+
+            <div class="form-group">
+                <label for="start-date">Payment Start Date</label>
+                <input type="date" id="start-date" required>
+                <small style="color: #718096; font-size: 12px;">Choose today's date for an immediate charge.</small>
+            </div>
+
+            <div class="checkbox-group tos-row">
+                <input type="checkbox" id="tos" required>
+                <label for="tos">I agree to the <a href="/terms.html" target="_blank">Terms of Service</a></label>
+            </div>
+
+            <div class="summary-box">
+                <div class="summary-amount">Monthly: <span id="monthly-display">$0</span></div>
+                <div id="pledge-summary" class="summary-detail">Select amount and date to calculate total.</div>
+            </div>
+
+            <button type="submit" id="submit-button">Continue to Secure Payment</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const phoneInput = document.getElementById('phone');
+    const startInput = document.getElementById('start-date');
+    const amtInput = document.getElementById('monthly-amount');
+    const summaryDiv = document.getElementById('pledge-summary');
+    const displayAmt = document.getElementById('monthly-display');
+
+    // Phone Formatter
+    phoneInput.addEventListener('input', (e) => {
+        let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
+        e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
+    });
+
+    // Date Init
+    const today = new Date().toLocaleDateString('en-CA'); 
+    startInput.value = today;
+    startInput.min = today;
+
+    function calculatePledge() {
+        const monthly = parseFloat(amtInput.value) || 0;
+        const start = new Date(startInput.value);
+        const end = new Date("2026-08-31");
+        
+        let months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth()) + 1;
+        if (months <= 0) months = 1;
+
+        const totalPledge = Math.round(monthly * months);
+        displayAmt.innerText = `$${Math.round(monthly)}`;
+        
+        summaryDiv.innerHTML = `
+            Total commitment until Aug 31, 2026: <strong>$${totalPledge.toLocaleString()}</strong>
+            <br>
+            <span style="font-size: 13px;">(${months} installments)</span>
+        `;
+    }
+
+    [amtInput, startInput].forEach(input => input.addEventListener('input', calculatePledge));
+
+    document.getElementById('donation-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('submit-button');
+        btn.disabled = true;
+        btn.innerText = "Connecting to Stripe...";
+
+        const payload = {
+            donorName: document.getElementById('donor-name').value,
+            email: document.getElementById('email').value,
+            phone: phoneInput.value,
+            monthlyAmount: amtInput.value,
+            startDate: startInput.value
+        };
+
+        const res = await fetch('/create-checkout-session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (data.url) window.location.href = data.url;
+        else { alert(data.error); btn.disabled = false; }
+    });
+</script>
+</body>
+</html>
