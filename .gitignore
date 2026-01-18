@@ -1,8 +1,19 @@
-# Sensitive credentials
+# --- SENSITIVE DATA ---
+# Never upload your Stripe Secret Keys
 .env
 
-# Private donor data
+# Never upload your donor logs (Email, Phone, Names)
 donation.csv
 
-# Dependency folders
+# --- SYSTEM FILES ---
+# Large folders that can be re-installed via 'npm install'
 node_modules/
+
+# Logs and temporary files
+npm-debug.log*
+.DS_Store
+Thumbs.db
+
+# --- OPTIONAL ---
+# If you use a local database later, ignore it here
+*.db
